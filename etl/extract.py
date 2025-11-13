@@ -1,9 +1,13 @@
+# extract file
+import pathlib
 import pandas as pd
 import requests
 import time
 from typing import List, Dict
 
 BASE = "https://api.coingecko.com/api/v3/coins/markets"
+DATA_RAW = pathlib.Path("data/raw")
+DATA_RAW.mkdir(parents=True, exist_ok=True)
 
 def fetch_market(vs_currency="usd",per_page=250,page=1,extra_params=None) -> List[Dict]:
         params = {"vs_currency": vs_currency, "per_page": per_page, "page": page,"order": "market_cap_desc","sparkline":False}
@@ -26,11 +30,10 @@ def fetch_all_top_n(vs_currency="usd",per_page=250,top_n=500,delay=1.0,extra_par
         return out
 
 
-def save_raw_data( db_path="data/raw/coin_extract.csv"):
+def save_raw_data( db_path="data/raw/coin_extract.csv",top_n=500):
     print("fetching data raw from API...")
-    items = fetch_market(vs_currency="usd",per_page=1000)
+    items = fetch_all_top_n(vs_currency="usd",per_page=250,top_n=top_n,delay=1.0)
     df = pd.DataFrame(items)
-    print(f"Saving {len(df)} records to {db_path} ...")
     df.to_csv(db_path, index=False)
     print(f"Saved {len(df)} records to {db_path}")
 
